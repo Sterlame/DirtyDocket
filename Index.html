@@ -1,0 +1,1187 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Dirty Docket</title>
+  <link href="https://fonts.googleapis.com/css2?family=Barlow+Condensed:wght@600;700;800&family=IBM+Plex+Mono:wght@400;600&family=Barlow:wght@400;500;600&display=swap" rel="stylesheet" />
+  <style>
+    :root {
+      --bg: #080e1a;
+      --surface: #0d1626;
+      --surface2: #111e33;
+      --border: #1e3050;
+      --border-bright: #2a4570;
+      --text: #d6e4f7;
+      --muted: #4a6a99;
+      --accent: #3b82f6;
+      --accent-bright: #60a5fa;
+      --accent-dim: #1d4ed8;
+      --danger: #ef4444;
+      --danger-bg: #1a0808;
+      --danger-border: #7f1d1d;
+      --orange: #f97316;
+      --orange-bg: #1a1008;
+      --orange-border: #7c2d12;
+      --green: #22c55e;
+      --font-display: 'Barlow Condensed', sans-serif;
+      --font-mono: 'IBM Plex Mono', monospace;
+      --font-body: 'Barlow', sans-serif;
+    }
+
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+
+    body {
+      background: var(--bg);
+      color: var(--text);
+      font-family: var(--font-body);
+      min-height: 100vh;
+      padding-bottom: 88px;
+    }
+
+    header {
+      padding: 18px 16px 12px;
+      border-bottom: 1px solid var(--border);
+      position: sticky;
+      top: 0;
+      background: var(--bg);
+      z-index: 100;
+    }
+
+    .header-top {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 12px;
+    }
+
+    .logo {
+      font-family: var(--font-display);
+      font-size: 2rem;
+      font-weight: 800;
+      letter-spacing: 0.06em;
+      text-transform: uppercase;
+      line-height: 1;
+      color: var(--text);
+    }
+
+    .logo em { color: var(--accent-bright); font-style: normal; }
+
+    .tagline {
+      font-family: var(--font-mono);
+      font-size: 0.58rem;
+      color: var(--muted);
+      text-transform: uppercase;
+      letter-spacing: 0.14em;
+      margin-top: 4px;
+    }
+
+    .header-right {
+      display: flex;
+      flex-direction: column;
+      align-items: flex-end;
+      gap: 6px;
+    }
+
+    .btn-info {
+      width: 28px;
+      height: 28px;
+      border-radius: 50%;
+      border: 1px solid var(--border-bright);
+      background: none;
+      color: var(--muted);
+      font-family: var(--font-mono);
+      font-size: 0.75rem;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      transition: all 0.15s;
+      flex-shrink: 0;
+    }
+
+    .btn-info:hover { color: var(--accent-bright); border-color: var(--accent); }
+
+    .user-badge {
+      font-family: var(--font-mono);
+      font-size: 0.6rem;
+      color: var(--muted);
+      text-align: right;
+    }
+
+    .user-badge span { color: var(--accent-bright); }
+
+    /* STATS */
+    .stats-bar { display: flex; border-bottom: 1px solid var(--border); }
+
+    .stat {
+      flex: 1;
+      padding: 10px 8px;
+      border-right: 1px solid var(--border);
+      text-align: center;
+    }
+
+    .stat:last-child { border-right: none; }
+
+    .stat-num {
+      font-family: var(--font-display);
+      font-size: 1.9rem;
+      font-weight: 700;
+      line-height: 1;
+      color: var(--accent-bright);
+    }
+
+    .stat-num.danger { color: var(--danger); }
+    .stat-num.green  { color: var(--green); }
+
+    .stat-label {
+      font-family: var(--font-mono);
+      font-size: 0.52rem;
+      color: var(--muted);
+      text-transform: uppercase;
+      letter-spacing: 0.1em;
+      margin-top: 3px;
+    }
+
+    /* MOST WANTED */
+    .wanted-section {
+      border-bottom: 1px solid var(--border);
+      padding: 0 14px 14px;
+    }
+
+    .wanted-header {
+      font-family: var(--font-mono);
+      font-size: 0.6rem;
+      text-transform: uppercase;
+      letter-spacing: 0.16em;
+      color: var(--danger);
+      padding: 12px 0 10px;
+      border-bottom: 1px solid var(--danger-border);
+      margin-bottom: 10px;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+
+    .wanted-header::before {
+      content: '';
+      width: 7px; height: 7px;
+      background: var(--danger);
+      border-radius: 50%;
+      animation: pulse 1.2s ease-in-out infinite;
+      flex-shrink: 0;
+    }
+
+    .wanted-empty {
+      font-family: var(--font-mono);
+      font-size: 0.65rem;
+      color: var(--muted);
+      padding: 6px 0;
+    }
+
+    .wanted-list { display: flex; flex-direction: column; gap: 7px; }
+
+    .wanted-card {
+      background: var(--danger-bg);
+      border: 1px solid var(--danger-border);
+      border-left: 3px solid var(--danger);
+      border-radius: 4px;
+      padding: 10px 12px;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      gap: 10px;
+    }
+
+    .wanted-card.reformed {
+      background: #0a1a0a;
+      border-color: #14532d;
+      border-left-color: var(--green);
+    }
+
+    .wanted-name {
+      font-family: var(--font-display);
+      font-size: 1.1rem;
+      font-weight: 800;
+      text-transform: uppercase;
+      letter-spacing: 0.08em;
+      color: var(--text);
+    }
+
+    .wanted-trend {
+      font-family: var(--font-mono);
+      font-size: 0.55rem;
+      color: var(--green);
+      margin-top: 3px;
+    }
+
+    .wanted-stats { text-align: right; flex-shrink: 0; }
+
+    .wanted-time {
+      font-family: var(--font-display);
+      font-size: 1rem;
+      font-weight: 700;
+      color: var(--danger);
+      line-height: 1;
+    }
+
+    .wanted-card.reformed .wanted-time { color: var(--green); }
+
+    .wanted-sublabel {
+      font-family: var(--font-mono);
+      font-size: 0.52rem;
+      color: var(--muted);
+      text-transform: uppercase;
+      letter-spacing: 0.08em;
+      margin-top: 2px;
+    }
+
+    /* MAIN */
+    main { padding: 0 14px; }
+
+    .section-header {
+      font-family: var(--font-mono);
+      font-size: 0.6rem;
+      text-transform: uppercase;
+      letter-spacing: 0.16em;
+      color: var(--muted);
+      padding: 13px 0 8px;
+      border-bottom: 1px solid var(--border);
+      margin-bottom: 10px;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
+
+    .sort-toggle { cursor: pointer; font-size: 0.57rem; transition: color 0.15s; }
+    .sort-toggle:hover { color: var(--text); }
+
+    /* ENTRIES */
+    .docket-entry {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-left: 3px solid var(--accent-dim);
+      border-radius: 4px;
+      padding: 12px 13px;
+      margin-bottom: 8px;
+    }
+
+    .docket-entry.overdue {
+      background: var(--orange-bg);
+      border-color: var(--orange-border);
+      border-left-color: var(--orange);
+    }
+
+    .docket-entry.escalated {
+      background: var(--danger-bg);
+      border-color: var(--danger-border);
+      border-left-color: var(--danger);
+    }
+
+    .status-badge {
+      font-family: var(--font-mono);
+      font-size: 0.57rem;
+      text-transform: uppercase;
+      letter-spacing: 0.12em;
+      margin-bottom: 7px;
+      display: flex;
+      align-items: center;
+      gap: 5px;
+    }
+
+    .status-badge.overdue   { color: var(--orange); }
+    .status-badge.escalated { color: var(--danger); }
+
+    .status-badge .dot {
+      width: 6px; height: 6px;
+      border-radius: 50%;
+      flex-shrink: 0;
+      animation: pulse 1.2s ease-in-out infinite;
+    }
+
+    .status-badge.overdue   .dot { background: var(--orange); }
+    .status-badge.escalated .dot { background: var(--danger); }
+
+    @keyframes pulse {
+      0%, 100% { opacity: 1; }
+      50%       { opacity: 0.25; }
+    }
+
+    .entry-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: flex-start;
+      gap: 8px;
+      margin-bottom: 5px;
+    }
+
+    .entry-who {
+      font-family: var(--font-display);
+      font-size: 1rem;
+      font-weight: 700;
+      color: var(--text);
+      text-transform: uppercase;
+      letter-spacing: 0.08em;
+    }
+
+    .entry-age {
+      font-family: var(--font-mono);
+      font-size: 0.6rem;
+      color: var(--muted);
+      text-align: right;
+      flex-shrink: 0;
+      line-height: 1.5;
+    }
+
+    .entry-age.overdue   { color: var(--orange); }
+    .entry-age.escalated { color: var(--danger); }
+
+    .entry-desc {
+      font-size: 0.9rem;
+      color: var(--text);
+      opacity: 0.8;
+      line-height: 1.4;
+      margin-bottom: 10px;
+    }
+
+    .entry-footer {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      gap: 8px;
+      flex-wrap: wrap;
+    }
+
+    .entry-meta {
+      font-family: var(--font-mono);
+      font-size: 0.53rem;
+      color: var(--border-bright);
+    }
+
+    .entry-actions { display: flex; gap: 7px; align-items: center; }
+
+    .btn-resolve {
+      font-family: var(--font-mono);
+      font-size: 0.6rem;
+      background: none;
+      border: 1px solid var(--green);
+      color: var(--green);
+      padding: 4px 11px;
+      border-radius: 3px;
+      cursor: pointer;
+      text-transform: uppercase;
+      letter-spacing: 0.08em;
+      transition: all 0.15s;
+    }
+
+    .btn-resolve:hover { background: var(--green); color: var(--bg); }
+
+    .btn-escalate {
+      font-family: var(--font-mono);
+      font-size: 0.6rem;
+      background: none;
+      border: 1px solid var(--danger);
+      color: var(--danger);
+      padding: 4px 11px;
+      border-radius: 3px;
+      cursor: pointer;
+      text-transform: uppercase;
+      letter-spacing: 0.08em;
+      transition: all 0.15s;
+    }
+
+    .btn-escalate:hover { background: var(--danger); color: var(--text); }
+
+    /* EMPTY */
+    .empty-state { text-align: center; padding: 42px 20px; }
+    .empty-icon  { font-size: 2rem; margin-bottom: 10px; }
+
+    .empty-title {
+      font-family: var(--font-display);
+      font-size: 1.4rem;
+      font-weight: 700;
+      text-transform: uppercase;
+      letter-spacing: 0.06em;
+      color: var(--green);
+      margin-bottom: 4px;
+    }
+
+    .empty-sub {
+      font-family: var(--font-mono);
+      font-size: 0.62rem;
+      color: var(--muted);
+      letter-spacing: 0.1em;
+    }
+
+    /* COMPLETED */
+    .resolved-entry {
+      font-family: var(--font-mono);
+      font-size: 0.65rem;
+      color: var(--muted);
+      padding: 7px 10px;
+      border-left: 2px solid var(--border);
+      margin-bottom: 5px;
+      opacity: 0.5;
+    }
+
+    .resolved-entry .r-name   { color: var(--text); opacity: 0.7; }
+    .resolved-entry .r-closer { color: var(--accent-bright); opacity: 0.8; }
+
+    /* FAB */
+    .fab {
+      position: fixed;
+      bottom: 22px;
+      right: 16px;
+      background: var(--accent);
+      color: #fff;
+      border: none;
+      border-radius: 6px;
+      padding: 13px 20px;
+      font-family: var(--font-display);
+      font-size: 1rem;
+      font-weight: 700;
+      letter-spacing: 0.1em;
+      text-transform: uppercase;
+      cursor: pointer;
+      box-shadow: 0 4px 24px rgba(59,130,246,0.35);
+      transition: all 0.15s;
+      z-index: 200;
+    }
+
+    .fab:hover { background: var(--accent-bright); transform: translateY(-1px); }
+
+    /* MODALS */
+    .modal-backdrop {
+      position: fixed;
+      inset: 0;
+      background: rgba(0,0,0,0.9);
+      z-index: 300;
+      display: flex;
+      align-items: flex-end;
+      justify-content: center;
+    }
+
+    .modal-backdrop.centered {
+      align-items: center;
+      padding: 20px;
+    }
+
+    .modal {
+      background: var(--surface2);
+      border: 1px solid var(--border-bright);
+      border-top: 3px solid var(--accent);
+      border-radius: 10px 10px 0 0;
+      width: 100%;
+      max-width: 480px;
+      padding: 24px 18px 34px;
+    }
+
+    .modal.centered-modal {
+      border-radius: 8px;
+      padding: 24px 18px 22px;
+    }
+
+    .modal.danger-modal { border-top-color: var(--danger); }
+
+    .modal-title {
+      font-family: var(--font-display);
+      font-size: 1.5rem;
+      font-weight: 800;
+      text-transform: uppercase;
+      letter-spacing: 0.08em;
+      color: var(--text);
+      margin-bottom: 3px;
+    }
+
+    .modal-sub {
+      font-family: var(--font-mono);
+      font-size: 0.58rem;
+      color: var(--muted);
+      text-transform: uppercase;
+      letter-spacing: 0.12em;
+      margin-bottom: 18px;
+    }
+
+    /* INFO BLURB */
+    .info-blurb {
+      background: var(--surface);
+      border: 1px solid var(--border-bright);
+      border-radius: 5px;
+      padding: 14px;
+      margin-bottom: 20px;
+    }
+
+    .info-blurb-title {
+      font-family: var(--font-display);
+      font-size: 0.85rem;
+      font-weight: 700;
+      text-transform: uppercase;
+      letter-spacing: 0.1em;
+      color: var(--accent-bright);
+      margin-bottom: 10px;
+    }
+
+    .info-rule {
+      display: flex;
+      gap: 10px;
+      margin-bottom: 9px;
+      align-items: flex-start;
+    }
+
+    .info-rule:last-child { margin-bottom: 0; }
+
+    .info-icon {
+      font-size: 0.9rem;
+      flex-shrink: 0;
+      margin-top: 1px;
+    }
+
+    .info-text {
+      font-family: var(--font-body);
+      font-size: 0.82rem;
+      color: var(--text);
+      opacity: 0.85;
+      line-height: 1.4;
+    }
+
+    .info-text strong {
+      color: var(--text);
+      opacity: 1;
+      font-weight: 600;
+    }
+
+    label {
+      display: block;
+      font-family: var(--font-mono);
+      font-size: 0.58rem;
+      text-transform: uppercase;
+      letter-spacing: 0.12em;
+      color: var(--muted);
+      margin-bottom: 6px;
+    }
+
+    input, textarea {
+      width: 100%;
+      background: var(--bg);
+      border: 1px solid var(--border-bright);
+      border-radius: 4px;
+      color: var(--text);
+      font-family: var(--font-body);
+      font-size: 0.95rem;
+      font-weight: 500;
+      padding: 10px 12px;
+      margin-bottom: 14px;
+      outline: none;
+      transition: border-color 0.15s;
+      -webkit-appearance: none;
+    }
+
+    input:focus, textarea:focus { border-color: var(--accent); }
+    textarea { resize: vertical; min-height: 80px; }
+
+    .modal-actions { display: flex; gap: 8px; margin-top: 4px; }
+
+    .btn-primary {
+      flex: 1;
+      background: var(--accent);
+      color: #fff;
+      border: none;
+      border-radius: 4px;
+      padding: 12px;
+      font-family: var(--font-display);
+      font-size: 1rem;
+      font-weight: 700;
+      letter-spacing: 0.1em;
+      text-transform: uppercase;
+      cursor: pointer;
+      transition: background 0.15s;
+    }
+
+    .btn-primary:hover { background: var(--accent-bright); }
+    .btn-primary.danger-btn { background: var(--danger); }
+    .btn-primary.danger-btn:hover { background: #f87171; }
+
+    .btn-secondary {
+      background: none;
+      color: var(--muted);
+      border: 1px solid var(--border-bright);
+      border-radius: 4px;
+      padding: 12px 14px;
+      font-family: var(--font-mono);
+      font-size: 0.68rem;
+      cursor: pointer;
+      text-transform: uppercase;
+      letter-spacing: 0.1em;
+      transition: all 0.15s;
+    }
+
+    .btn-secondary:hover { color: var(--text); border-color: var(--muted); }
+
+    .error-msg {
+      font-family: var(--font-mono);
+      font-size: 0.62rem;
+      color: var(--danger);
+      margin: -8px 0 10px;
+      display: none;
+    }
+
+    /* TOAST */
+    .toast {
+      position: fixed;
+      bottom: 88px;
+      left: 50%;
+      transform: translateX(-50%) translateY(14px);
+      background: var(--surface2);
+      border: 1px solid var(--border-bright);
+      color: var(--text);
+      font-family: var(--font-mono);
+      font-size: 0.68rem;
+      padding: 9px 16px;
+      border-radius: 4px;
+      z-index: 400;
+      opacity: 0;
+      transition: all 0.2s;
+      white-space: nowrap;
+      pointer-events: none;
+    }
+
+    .toast.show { opacity: 1; transform: translateX(-50%) translateY(0); }
+    .toast.success    { border-color: var(--green);  color: var(--green); }
+    .toast.error-toast{ border-color: var(--danger); color: var(--danger); }
+    .toast.warn       { border-color: var(--orange); color: var(--orange); }
+  </style>
+</head>
+<body>
+
+  <header>
+    <div class="header-top">
+      <div>
+        <div class="logo">Dirty <em>Docket</em></div>
+        <div class="tagline">Deferred Dish Registry</div>
+      </div>
+      <div class="header-right">
+        <button class="btn-info" onclick="openInfoModal()" title="How it works">ⓘ</button>
+        <div class="user-badge" id="userBadge"></div>
+      </div>
+    </div>
+  </header>
+
+  <div class="stats-bar">
+    <div class="stat">
+      <div class="stat-num" id="statOpen">0</div>
+      <div class="stat-label">Pending</div>
+    </div>
+    <div class="stat">
+      <div class="stat-num danger" id="statFail">0</div>
+      <div class="stat-label">Compliance Failures</div>
+    </div>
+    <div class="stat">
+      <div class="stat-num green" id="statDone">0</div>
+      <div class="stat-label">Completed</div>
+    </div>
+  </div>
+
+  <div class="wanted-section">
+    <div class="wanted-header">Most Wanted — Chronic Offenders</div>
+    <div id="wantedList"><div class="wanted-empty">No offenders on record. Kitchen is compliant.</div></div>
+  </div>
+
+  <main>
+    <div class="section-header">
+      <span>Open Items</span>
+      <span class="sort-toggle" id="sortLabel" onclick="toggleSort()">OLDEST FIRST ↑</span>
+    </div>
+    <div id="activeLog"></div>
+
+    <div class="section-header" style="margin-top:12px;">
+      <span>Completed</span>
+    </div>
+    <div id="resolvedLog"></div>
+  </main>
+
+  <button class="fab" onclick="openSubmitModal()">+ Log Item</button>
+
+  <!-- ONBOARDING -->
+  <div class="modal-backdrop centered" id="onboardModal">
+    <div class="modal centered-modal">
+      <div class="modal-title">Welcome to Dirty Docket</div>
+      <div class="modal-sub">Read the rules, then register below</div>
+
+      <div class="info-blurb">
+        <div class="info-blurb-title">How It Works</div>
+        <div class="info-rule">
+          <div class="info-icon">📋</div>
+          <div class="info-text"><strong>Log it.</strong> Left something in the sink? File it here instead of pretending it doesn't exist.</div>
+        </div>
+        <div class="info-rule">
+          <div class="info-icon">⏱</div>
+          <div class="info-text"><strong>7 days = Compliance Failure.</strong> Items open longer than a week are flagged and anyone can escalate them.</div>
+        </div>
+        <div class="info-rule">
+          <div class="info-icon">🚿</div>
+          <div class="info-text"><strong>Escalation = Shower Protocol.</strong> Overdue items get physically moved to the shared shower. This is logged.</div>
+        </div>
+        <div class="info-rule">
+          <div class="info-icon">✅</div>
+          <div class="info-text"><strong>Anyone can close anything.</strong> If you do someone else's dishes, close their item — it records who did it.</div>
+        </div>
+        <div class="info-rule">
+          <div class="info-icon">🏴‍☠️</div>
+          <div class="info-text"><strong>Most Wanted.</strong> Rack up 3+ days of total sink time and you're on the board. Clean up your act — show a consistent improvement trend — and you earn a redemption arc.</div>
+        </div>
+      </div>
+
+      <label for="nameInput">Your Name</label>
+      <input type="text" id="nameInput" placeholder="e.g. Kyle" autocomplete="off" />
+      <div class="error-msg" id="nameError">A name is required.</div>
+      <div class="modal-actions">
+        <button class="btn-primary" onclick="saveUser()">Register</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- INFO MODAL (standalone) -->
+  <div class="modal-backdrop centered" id="infoModal" style="display:none;">
+    <div class="modal centered-modal">
+      <div class="modal-title">How It Works</div>
+      <div class="modal-sub">Dirty Docket — Deferred Dish Registry</div>
+
+      <div class="info-blurb" style="margin-bottom:16px;">
+        <div class="info-rule">
+          <div class="info-icon">📋</div>
+          <div class="info-text"><strong>Log it.</strong> Left something in the sink? File it here instead of pretending it doesn't exist.</div>
+        </div>
+        <div class="info-rule">
+          <div class="info-icon">⏱</div>
+          <div class="info-text"><strong>7 days = Compliance Failure.</strong> Items open longer than a week are flagged and anyone can escalate them.</div>
+        </div>
+        <div class="info-rule">
+          <div class="info-icon">🚿</div>
+          <div class="info-text"><strong>Escalation = Shower Protocol.</strong> Overdue items get physically moved to the shared shower. This is logged.</div>
+        </div>
+        <div class="info-rule">
+          <div class="info-icon">✅</div>
+          <div class="info-text"><strong>Anyone can close anything.</strong> If you do someone else's dishes, close their item — it records who did it.</div>
+        </div>
+        <div class="info-rule">
+          <div class="info-icon">🏴‍☠️</div>
+          <div class="info-text"><strong>Most Wanted.</strong> Rack up 3+ days of total sink time and you're on the board. Clean up your act — show a consistent improvement trend — and you earn a redemption arc.</div>
+        </div>
+      </div>
+
+      <div class="modal-actions">
+        <button class="btn-primary" onclick="closeInfoModal()">Got It</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- SUBMIT -->
+  <div class="modal-backdrop" id="submitModal" style="display:none;">
+    <div class="modal">
+      <div class="modal-title">Log Deferred Item</div>
+      <div class="modal-sub">Describe what was left for later</div>
+      <label for="dishDesc">Item Description</label>
+      <textarea id="dishDesc" placeholder="e.g. Two pots, a cutting board, and a bowl with cereal still in it"></textarea>
+      <div class="error-msg" id="descError">Description required.</div>
+      <div class="modal-actions">
+        <button class="btn-secondary" onclick="closeSubmitModal()">Cancel</button>
+        <button class="btn-primary" onclick="submitDish()">Submit</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- ESCALATE CONFIRM -->
+  <div class="modal-backdrop centered" id="escalateModal" style="display:none;">
+    <div class="modal centered-modal danger-modal">
+      <div class="modal-title">Shower Protocol</div>
+      <div class="modal-sub">This item is being physically escalated</div>
+      <p style="font-size:0.88rem;color:var(--text);opacity:0.8;margin-bottom:18px;line-height:1.5;">
+        Confirm that <strong id="escalateWho" style="color:var(--text);opacity:1;"></strong>'s items are being moved to the shared shower. This will be logged.
+      </p>
+      <div class="modal-actions">
+        <button class="btn-secondary" onclick="closeEscalateModal()">Cancel</button>
+        <button class="btn-primary danger-btn" onclick="confirmEscalate()">Escalate</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- CLOSE OTHER'S ITEM -->
+  <div class="modal-backdrop centered" id="closeOtherModal" style="display:none;">
+    <div class="modal centered-modal">
+      <div class="modal-title">Close Item</div>
+      <div class="modal-sub">This belongs to someone else</div>
+      <p style="font-size:0.88rem;color:var(--text);opacity:0.8;margin-bottom:18px;line-height:1.5;">
+        You're closing <strong id="closeOtherWho" style="color:var(--accent-bright);"></strong>'s item. This will be logged as closed by <strong id="closeOtherMe" style="color:var(--accent-bright);"></strong>.
+      </p>
+      <div class="modal-actions">
+        <button class="btn-secondary" onclick="closeOtherModal()">Cancel</button>
+        <button class="btn-primary" onclick="confirmCloseOther()">Confirm</button>
+      </div>
+    </div>
+  </div>
+
+  <div class="toast" id="toast"></div>
+
+  <script>
+    const SCRIPT_URL  = 'https://script.google.com/macros/s/AKfycbynjsg6jhg9KeX8gJtMj6t-_Ev4LVYUqwLT30CHf79WmXniRbQXkO_JZIn3rUAqhskRdg/exec';
+    const OVERDUE_MS  = 7 * 24 * 60 * 60 * 1000;
+    const WANTED_MS   = 3 * 24 * 60 * 60 * 1000;
+    const TREND_COUNT = 3;
+
+    let currentUser     = null;
+    let sortOldestFirst = true;
+    let allEntries      = [];
+    let pendingEscalateId = null;
+    let pendingCloseId    = null;
+
+    function init() {
+      const stored = localStorage.getItem('dd_user');
+      if (stored) {
+        currentUser = JSON.parse(stored);
+        document.getElementById('onboardModal').style.display = 'none';
+        updateUserBadge();
+        fetchEntries();
+      } else {
+        document.getElementById('onboardModal').style.display = 'flex';
+      }
+    }
+
+    function saveUser() {
+      const name = document.getElementById('nameInput').value.trim();
+      if (!name) { document.getElementById('nameError').style.display = 'block'; return; }
+      const uid = 'uid_' + Math.random().toString(36).substr(2,9) + Date.now().toString(36);
+      currentUser = { name, uid };
+      localStorage.setItem('dd_user', JSON.stringify(currentUser));
+      document.getElementById('onboardModal').style.display = 'none';
+      updateUserBadge();
+      fetchEntries();
+    }
+
+    function updateUserBadge() {
+      if (!currentUser) return;
+      document.getElementById('userBadge').innerHTML = `Logged as: <span>${escHtml(currentUser.name)}</span>`;
+    }
+
+    // INFO
+    function openInfoModal()  { document.getElementById('infoModal').style.display = 'flex'; }
+    function closeInfoModal() { document.getElementById('infoModal').style.display = 'none'; }
+
+    // SUBMIT
+    function openSubmitModal() {
+      document.getElementById('submitModal').style.display = 'flex';
+      setTimeout(() => document.getElementById('dishDesc').focus(), 80);
+    }
+
+    function closeSubmitModal() {
+      document.getElementById('submitModal').style.display = 'none';
+      document.getElementById('dishDesc').value = '';
+      document.getElementById('descError').style.display = 'none';
+    }
+
+    async function submitDish() {
+      const desc = document.getElementById('dishDesc').value.trim();
+      if (!desc) { document.getElementById('descError').style.display = 'block'; return; }
+      const entry = {
+        action: 'submit',
+        uid: currentUser.uid,
+        name: currentUser.name,
+        description: desc,
+        timestamp: new Date().toISOString(),
+        id: 'DD-' + Date.now().toString(36).toUpperCase(),
+        status: 'open',
+        escalated: false
+      };
+      closeSubmitModal();
+      showToast('Logging item...', 'default');
+      await postToSheet(entry);
+      showToast('Item logged.', 'success');
+      await fetchEntries();
+    }
+
+    // RESOLVE
+    function tryResolve(id) {
+      const entry = allEntries.find(e => e.id === id);
+      if (!entry) return;
+      if (entry.uid === currentUser.uid) {
+        resolveEntry(id, currentUser.name);
+      } else {
+        document.getElementById('closeOtherWho').textContent = entry.name;
+        document.getElementById('closeOtherMe').textContent  = currentUser.name;
+        pendingCloseId = id;
+        document.getElementById('closeOtherModal').style.display = 'flex';
+      }
+    }
+
+    function closeOtherModal() {
+      document.getElementById('closeOtherModal').style.display = 'none';
+      pendingCloseId = null;
+    }
+
+    async function confirmCloseOther() {
+      document.getElementById('closeOtherModal').style.display = 'none';
+      if (pendingCloseId) await resolveEntry(pendingCloseId, currentUser.name);
+      pendingCloseId = null;
+    }
+
+    async function resolveEntry(id, closedByName) {
+      showToast('Closing item...', 'default');
+      const resolvedAt = new Date().toISOString();
+      await postToSheet({ action: 'resolve', id, resolvedBy: closedByName, resolvedAt });
+      showToast('Item completed.', 'success');
+      await fetchEntries();
+    }
+
+    // ESCALATE
+    function tryEscalate(id) {
+      const entry = allEntries.find(e => e.id === id);
+      if (!entry) return;
+      document.getElementById('escalateWho').textContent = entry.name;
+      pendingEscalateId = id;
+      document.getElementById('escalateModal').style.display = 'flex';
+    }
+
+    function closeEscalateModal() {
+      document.getElementById('escalateModal').style.display = 'none';
+      pendingEscalateId = null;
+    }
+
+    async function confirmEscalate() {
+      document.getElementById('escalateModal').style.display = 'none';
+      if (!pendingEscalateId) return;
+      showToast('Shower protocol initiated.', 'warn');
+      await postToSheet({ action: 'escalate', id: pendingEscalateId, escalatedBy: currentUser.name, escalatedAt: new Date().toISOString() });
+      pendingEscalateId = null;
+      await fetchEntries();
+    }
+
+    // SHEET API
+    async function postToSheet(data) {
+      if (!SCRIPT_URL || SCRIPT_URL === 'YOUR_APPS_SCRIPT_URL_HERE') {
+        if (data.action === 'submit') {
+          allEntries.unshift({ ...data });
+        } else if (data.action === 'resolve') {
+          const e = allEntries.find(e => e.id === data.id);
+          if (e) { e.status = 'resolved'; e.resolvedBy = data.resolvedBy; e.resolvedAt = data.resolvedAt; }
+        } else if (data.action === 'escalate') {
+          const e = allEntries.find(e => e.id === data.id);
+          if (e) { e.escalated = true; e.escalatedBy = data.escalatedBy; e.escalatedAt = data.escalatedAt; }
+        }
+        return;
+      }
+      await fetch(SCRIPT_URL, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(data),
+        mode: 'no-cors'
+      });
+    }
+
+    async function fetchEntries() {
+      if (!SCRIPT_URL || SCRIPT_URL === 'YOUR_APPS_SCRIPT_URL_HERE') {
+        renderAll(); return;
+      }
+      try {
+        const res  = await fetch(SCRIPT_URL + '?action=fetch');
+        const data = await res.json();
+        allEntries = data.entries || [];
+      } catch (e) {}
+      renderAll();
+    }
+
+    // SCOREBOARD
+    function buildScoreboard() {
+      const now = Date.now();
+      const byUser = {};
+
+      allEntries.forEach(e => {
+        if (!byUser[e.uid]) byUser[e.uid] = { name: e.name, totalMs: 0, items: [] };
+        const start = new Date(e.timestamp).getTime();
+        const end   = e.resolvedAt ? new Date(e.resolvedAt).getTime() : now;
+        const ms    = end - start;
+        byUser[e.uid].totalMs += ms;
+        byUser[e.uid].items.push({ ms, resolvedAt: e.resolvedAt, timestamp: e.timestamp });
+      });
+
+      const offenders = [];
+      Object.values(byUser).forEach(u => {
+        if (u.totalMs < WANTED_MS) return;
+        const closed = u.items
+          .filter(i => i.resolvedAt)
+          .sort((a,b) => new Date(a.timestamp) - new Date(b.timestamp));
+
+        let reformed = false;
+        if (closed.length >= TREND_COUNT * 2) {
+          const early  = closed.slice(0, TREND_COUNT).reduce((s,i) => s+i.ms, 0) / TREND_COUNT;
+          const recent = closed.slice(-TREND_COUNT).reduce((s,i) => s+i.ms, 0) / TREND_COUNT;
+          reformed = recent < early * 0.7;
+        }
+        offenders.push({ name: u.name, totalMs: u.totalMs, reformed });
+      });
+
+      return offenders.sort((a,b) => b.totalMs - a.totalMs);
+    }
+
+    // RENDER
+    function renderAll() {
+      const now      = Date.now();
+      const open     = allEntries.filter(e => e.status === 'open');
+      const resolved = allEntries.filter(e => e.status !== 'open');
+      const failures = open.filter(e => now - new Date(e.timestamp).getTime() > OVERDUE_MS);
+
+      document.getElementById('statOpen').textContent = open.length;
+      document.getElementById('statFail').textContent = failures.length;
+      document.getElementById('statDone').textContent = resolved.length;
+
+      renderWanted();
+      renderActive(now);
+      renderResolved();
+    }
+
+    function renderWanted() {
+      const offenders = buildScoreboard();
+      const el = document.getElementById('wantedList');
+      if (offenders.length === 0) {
+        el.innerHTML = '<div class="wanted-empty">No offenders on record. Kitchen is compliant.</div>';
+        return;
+      }
+      el.innerHTML = `<div class="wanted-list">` + offenders.map((o, i) => `
+        <div class="wanted-card ${o.reformed ? 'reformed' : ''}">
+          <div>
+            <div class="wanted-name">${i === 0 && !o.reformed ? '🥇 ' : ''}${escHtml(o.name)}</div>
+            ${o.reformed ? `<div class="wanted-trend">↓ Improving — monitoring</div>` : ''}
+          </div>
+          <div class="wanted-stats">
+            <div class="wanted-time">${formatDuration(o.totalMs)}</div>
+            <div class="wanted-sublabel">${o.reformed ? 'Redemption arc' : 'Total sink time'}</div>
+          </div>
+        </div>`).join('') + `</div>`;
+    }
+
+    function renderActive(now) {
+      const open   = allEntries.filter(e => e.status === 'open');
+      const sorted = [...open].sort((a,b) => {
+        const ta = new Date(a.timestamp).getTime();
+        const tb = new Date(b.timestamp).getTime();
+        return sortOldestFirst ? ta - tb : tb - ta;
+      });
+
+      const el = document.getElementById('activeLog');
+      if (sorted.length === 0) {
+        el.innerHTML = `
+          <div class="empty-state">
+            <div class="empty-icon">🫧</div>
+            <div class="empty-title">No Open Items</div>
+            <div class="empty-sub">Sink compliance: confirmed.</div>
+          </div>`;
+        return;
+      }
+
+      el.innerHTML = sorted.map(entry => {
+        const age         = now - new Date(entry.timestamp).getTime();
+        const isOverdue   = age > OVERDUE_MS;
+        const isEscalated = !!entry.escalated;
+        const ageStr      = formatAge(age);
+        const ts          = new Date(entry.timestamp).toLocaleDateString('en-CA', { month:'short', day:'numeric', hour:'2-digit', minute:'2-digit' });
+        const stateClass  = isEscalated ? 'escalated' : isOverdue ? 'overdue' : '';
+
+        let badge = '';
+        if (isEscalated) {
+          badge = `<div class="status-badge escalated"><span class="dot"></span>Shower Protocol Active — escalated by ${escHtml(entry.escalatedBy || 'unknown')}</div>`;
+        } else if (isOverdue) {
+          badge = `<div class="status-badge overdue"><span class="dot"></span>Compliance Failure — pending escalation</div>`;
+        }
+
+        const escalateBtn = isOverdue && !isEscalated
+          ? `<button class="btn-escalate" onclick="tryEscalate('${entry.id}')">Escalate</button>`
+          : '';
+
+        return `
+          <div class="docket-entry ${stateClass}">
+            ${badge}
+            <div class="entry-header">
+              <div class="entry-who">${escHtml(entry.name)}</div>
+              <div class="entry-age ${isEscalated ? 'escalated' : isOverdue ? 'overdue' : ''}">${ageStr}<br><span style="opacity:0.5">${ts}</span></div>
+            </div>
+            <div class="entry-desc">${escHtml(entry.description)}</div>
+            <div class="entry-footer">
+              <div class="entry-meta">${entry.id}</div>
+              <div class="entry-actions">
+                ${escalateBtn}
+                <button class="btn-resolve" onclick="tryResolve('${entry.id}')">Mark Complete</button>
+              </div>
+            </div>
+          </div>`;
+      }).join('');
+    }
+
+    function renderResolved() {
+      const done = allEntries.filter(e => e.status !== 'open');
+      const el   = document.getElementById('resolvedLog');
+      if (done.length === 0) {
+        el.innerHTML = `<div style="font-family:var(--font-mono);font-size:0.62rem;color:var(--muted);padding:8px 0;">No completed items on record.</div>`;
+        return;
+      }
+      el.innerHTML = [...done].reverse().slice(0, 12).map(e => {
+        const closedBy = e.resolvedBy && e.resolvedBy !== e.name
+          ? ` · <span class="r-closer">closed by ${escHtml(e.resolvedBy)}</span>`
+          : '';
+        return `
+          <div class="resolved-entry">
+            <span class="r-name">${escHtml(e.name)}</span> — ${escHtml(e.description)}${closedBy}
+          </div>`;
+      }).join('');
+    }
+
+    // UTILS
+    function formatAge(ms) {
+      const mins = Math.floor(ms / 60000);
+      const hrs  = Math.floor(ms / 3600000);
+      const days = Math.floor(ms / 86400000);
+      if (days >= 7) return `${days}d ⚠`;
+      if (days >= 1) return `${days}d ${Math.floor((ms % 86400000) / 3600000)}h`;
+      if (hrs  >= 1) return `${hrs}h ${Math.floor((ms % 3600000) / 60000)}m`;
+      return `${mins}m ago`;
+    }
+
+    function formatDuration(ms) {
+      const days = Math.floor(ms / 86400000);
+      const hrs  = Math.floor((ms % 86400000) / 3600000);
+      if (days >= 1) return `${days}d ${hrs}h`;
+      return `${Math.floor(ms / 3600000)}h`;
+    }
+
+    function toggleSort() {
+      sortOldestFirst = !sortOldestFirst;
+      document.getElementById('sortLabel').textContent = sortOldestFirst ? 'OLDEST FIRST ↑' : 'NEWEST FIRST ↓';
+      renderAll();
+    }
+
+    function escHtml(str) {
+      return String(str)
+        .replace(/&/g,'&amp;').replace(/</g,'&lt;')
+        .replace(/>/g,'&gt;').replace(/"/g,'&quot;');
+    }
+
+    function showToast(msg, type='default') {
+      const t = document.getElementById('toast');
+      t.textContent = msg;
+      t.className = 'toast show' + (type==='success' ? ' success' : type==='error' ? ' error-toast' : type==='warn' ? ' warn' : '');
+      setTimeout(() => { t.className = 'toast'; }, 2800);
+    }
+
+    ['submitModal','escalateModal','closeOtherModal','infoModal'].forEach(id => {
+      document.getElementById(id).addEventListener('click', function(e) {
+        if (e.target !== this) return;
+        if (id === 'submitModal')    closeSubmitModal();
+        if (id === 'escalateModal')  closeEscalateModal();
+        if (id === 'closeOtherModal') closeOtherModal();
+        if (id === 'infoModal')      closeInfoModal();
+      });
+    });
+
+    document.getElementById('nameInput').addEventListener('keydown', e => { if (e.key === 'Enter') saveUser(); });
+
+    init();
+  </script>
+</body>
+</html>
